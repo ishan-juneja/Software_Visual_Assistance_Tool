@@ -1,0 +1,152 @@
+Project PRD — CaptureBench Lite
+
+Purpose: Full-stack learning project to simulate Apple’s internal camera tools environment, focused on image-quality regression detection and developer-tool UX.
+
+🧭 1. Problem Statement
+
+Apple’s imaging and camera-pipeline teams constantly capture photos across devices, builds, and scenes to evaluate quality regressions (e.g., “Did Build 102 worsen noise or sharpness?”).
+They need lightweight tooling to upload, analyze, and visualize image metrics over time.
+
+You’ll build a web-based dashboard and minimal backend that mimics this workflow — letting users upload sample captures, compute simple quality metrics, compare builds, and flag regressions.
+
+This project teaches:
+
+Full-stack fundamentals (frontend ↔ backend ↔ database)
+
+Data visualization and metric tracking
+
+Regression detection logic
+
+Developer-tool UX design
+
+End-to-end debugging and testing mindset
+
+🎯 2. Goals (MVP Scope)
+Category	Goal
+Backend	Upload & store images with metadata (device, build, scene)
+	Compute simple metrics: sharpness, contrast, exposure
+	Compare builds to detect regressions (drops > 5%)
+	Serve JSON APIs for trend & regression endpoints
+Frontend	Dashboard page with metric trend charts
+	Regression table (Δ values + badges)
+	Compare Scrubber view for A/B visual check
+	Upload panel for new captures
+Data	Seed script that generates 2 builds × 10 scenes with known −10% sharpness drift
+Learning	You can explain each endpoint, SQL query, and React component you wrote
+🧱 3. Non-Goals (for MVP)
+
+No user authentication or roles
+
+No cloud storage (local folder is fine)
+
+No perceptual or ML metrics (SSIM/LPIPS optional stretch)
+
+No complex permission system or fancy UI polish
+
+Not meant for production — learning tool only
+
+🧩 4. Users & Use Cases
+User	Goal	Example
+Field Engineer	Upload test captures	“Here are iPhone 12 vs 15 Pro low-light shots.”
+Imaging Engineer	Compare builds for regressions	“Sharpness dropped 8% after pipeline commit abc123.”
+Team Lead	Review data in meetings	“Generate a quick summary for Build 102 review.”
+⚙️ 5. Functional Requirements
+Backend ( FastAPI )
+Feature	Endpoint	Description
+Create Capture	POST /captures	Store metadata (device_id, build_id, scene_key)
+Upload Image	POST /captures/{id}/file	Save file → compute metrics
+Get Metrics Trend	GET /metrics/trend?device_id=&scenario=&metric=	Return avg value per build
+Get Regressions	GET /regressions?device_id=&scene_key=&metric=&baseline_build=&current_build=	Return Δ and flag if > 5% drop
+List Captures	GET /captures?device_id=&build_id=	Return latest captures for grid view
+
+Metric formulas
+
+Sharpness ≈ variance of Laplacian (gray image)
+
+Contrast ≈ pixel standard deviation
+
+Exposure ≈ mean brightness / 255
+
+Frontend ( React + Tailwind )
+Page	Key Components	Purpose
+Dashboard	MetricLineChart (Chart.js)	View trends over builds
+Regressions	RegressionTable + badges	See Δ and flagged scenes
+Compare	CompareScrubber (A/B slider)	Visual check of scene
+Upload	Drag-and-drop → API calls	Add new captures (Stretch)
+🧮 6. Data Model (Postgres)
+Table	Key Columns
+Device	id, name
+Build	id, label, commit_sha
+Shoot	id, title, scenario
+Capture	id, device_id, build_id, shoot_id, scene_key, image_path
+Metric	id, capture_id, metric, value
+Baseline	id, device_id, scene_key, metric, value, build_id
+🧠 7. Regression Logic
+delta = current_value - baseline_value
+if (metric in ["sharpness","contrast"]):
+    regressed = delta / baseline_value < -0.05
+elif (metric == "exposure"):
+    regressed = delta < -0.05
+
+
+Display ↓ Regressed if true; otherwise “OK”.
+
+📊 8. Success Metrics
+Metric	Target
+Upload → metrics time	< 2 seconds per image locally
+Regression detection accuracy	100% on seeded drift
+Dashboard responsiveness	< 300 ms on chart filter change
+Test coverage	≥ 1 unit + 1 end-to-end path passing
+🧰 9. Tech Stack
+
+Backend: FastAPI · Python · SQLAlchemy · Postgres
+
+Frontend: React · Vite · Tailwind · Chart.js
+
+Image Processing: Pillow · NumPy · scikit-image
+
+Deployment (optional): Render/Heroku + Vercel free tiers
+
+🧪 10. Test Plan
+
+Unit: verify metric functions (blurred image reduces sharpness).
+
+Integration: upload → metric → DB entry created.
+
+Seed Drift Acceptance: Build B shows ≈ −10% drop vs A.
+
+UI: regression table flags red row for scene-3.
+
+🚀 11. Stretch Ideas (if time permits)
+
+Add SSIM metric for perceptual comparison.
+
+Add search over scene names (pgvector optional).
+
+Export “Review Pack” PDF for sponsor meetings.
+
+Tiny SwiftUI client for iOS viewer (uses same API).
+
+🧩 12. Deliverables
+
+Working backend (FastAPI) and frontend (React)
+
+Seed script (seed_drift.py) showing drift detection
+
+README with setup steps + architecture diagram
+
+Screenshots of Dashboard and Regressions pages
+
+Short demo script (3–5 min walkthrough)
+
+🧭 13. Learning Outcomes
+
+By finishing CaptureBench Lite, you’ll:
+
+Understand how to design, implement, and test a full stack from scratch.
+
+Know how APIs, DB schema, and UI charts connect.
+
+Be able to discuss testing regressions, data integrity, and trade-offs like a real Apple SW Engineer.
+
+Have a tangible project that exercises the same fundamentals they’ll probe in coding interviews (structs, loops, I/O, REST, state management, algorithms).
