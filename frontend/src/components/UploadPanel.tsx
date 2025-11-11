@@ -1,38 +1,21 @@
-import { useState } from "react";
+type UploadPanelProps = {files: File[]};
 
-
-
-export default function DropArea(){
-    const [isDragging, setIsDragging] = useState(false)
-    const [files, setFiles] = useState<File[]>([]);
-
-
-    function handleDragOver(e: React.DragEvent<HTMLDivElement>){
-        e.preventDefault();
-        console.log("dragging over", e.target)
-        setIsDragging(true);
-    }   
-
-    function handleDrop(e: React.DragEvent<HTMLDivElement>){
-        e.preventDefault();
-        const dropped = Array.from(e.dataTransfer.files);
-        console.log("dropped files: ", )
-        setFiles(dropped)
-        setIsDragging(false);
-    }
+export default function UploadPanel({ files }: UploadPanelProps){
+    if (files.length === 0) return null;
 
     return(
-        <div
-            onDragOver={handleDragOver} // call our functions
-            onDrop={handleDrop}
-            style={{
-                border: "2px dashed gray",
-                borderRadius: "12px",
-                padding: "30px",
-                textAlign: "center",
-            }}
-        >   
-            Drop your files here
+        <div style={{marginTop: 16}}>
+            <div style={{fontWeight: 600}}>
+                Ready to Upload:
+                <ul>
+                    {files.map( f => (
+                        <li key={f.name} >
+                            {f.name} ({Math.round(f.size/1024)} KB) {/* current description of the files*/}
+                        </li>
+                    )
+                    )}
+                </ul>
+            </div>
         </div>
-    )
+    );
 }
