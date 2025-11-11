@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+    <body style="font-family: system-ui; margin:20px">
+        <div id="dropzone"
+        style="border:2px dashed #aaa; border-radius:12px; padding: 40px; text-align:center;">
+            drag and drop
+        </div>
+
+        <script>
+            const document = document.getElementById('dropzone')
+            
+            document.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                document.style.background = '#eefgff';
+                document.style.borderColor= '#3b82f6';
+            });
+
+            document.addEventListener('dragleave', () =>{
+                document.style.background = ' '; // go back to default
+                document.style.borderColor = '#aaa'; // i am assumoing white
+            });
+
+            // beyond visual effect we also need
+            document.addEventListener('drop', (e) =>{
+                e.preventDefault();
+                document.style.background = ' '; // go back to default
+                document.style.borderColor = '#aaa'; // i am assumoing white
+                console.log('dropped')
+            });
+        </script>
+    </body>
+</html>
